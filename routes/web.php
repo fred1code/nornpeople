@@ -16,40 +16,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+////
+
+Route::get('/test', 'PruebasController@index');
 
 
-Route::post('/user-create/{data}', function ($data) {
-    return '';
-});
+//Api
 
-Route::post('/user-delte/{id}', function ($id) {
-    return '';
-});
-
-Route::post('/user-update/{data}', function ($data) {
-    return '';
-});
-
-Route::post('/address-create/{data}', function ($data) {
-    return '';
-});
-
-Route::post('/address-update/{data}', function ($data) {
-    return '';
-});
-
-Route::post('/address-delete/{data}', function ($data) {
-    return '';
-});
-
-Route::post('/login/{data}', function ($data) {
-    return '';
-});
-
-Route::get('/users', function () {
-    return '';
-});
-
-Route::get('/address', function () {
-    return '';
-});
+Route::post('/api/user/store', 'UserController@store');
+Route::post('/api/address/store', 'AddressController@store');

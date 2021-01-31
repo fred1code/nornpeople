@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Address extends Model
 {
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_id', 'del', 'col', 'numIn', 'numEx', 'street',
+    ];
 
     public function user()
     {
