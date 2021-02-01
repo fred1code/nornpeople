@@ -25,3 +25,4 @@ Route::get('/test', 'PruebasController@index');
 
 Route::post('/api/user/store', 'UserController@store');
 Route::post('/api/address/store', 'AddressController@store');
+Route::post('/api/user/login', 'UserController@login');

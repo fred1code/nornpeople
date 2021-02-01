@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\JwtAuth;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -71,7 +73,13 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        return "User controller test";
+
+        $jwt = new JwtAuth();
+        $email = 'lesly317@8gmail.com';
+        $password = '123456';
+
+
+        return response()->json($jwt->signup($email, $password, true), 200);
     }
 
     /**
