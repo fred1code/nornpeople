@@ -21,8 +21,13 @@ Route::get('/', function () {
 Route::get('/test', 'PruebasController@index');
 
 
-//Api
-
+//////////////API
+//USERS
 Route::post('/api/user/store', 'UserController@store');
-Route::post('/api/address/store', 'AddressController@store');
 Route::post('/api/user/login', 'UserController@login');
+Route::post('/api/user/update', 'UserController@update');
+
+
+
+///ADDRESS
+Route::post('/api/address/store', 'AddressController@store');

@@ -73,13 +73,39 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
+        //recibir datos 
+        $json = $request->input('json', null);
+        $params_array = json_decode($json, true);
+        //validar datos
 
-        $jwt = new JwtAuth();
-        $email = 'lesly317@8gmail.com';
-        $password = '123456';
+        if (!empty($params_array)) {
+            $validate = \Validator::make($params_array, [
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
+            if ($validate->fails()) {
+                $response = [
+                    'status' => 'fails',
+                    'code' => 400,
+                    'message' => "Email o Password incorrecta",
+                ];
+            } else {
+                $jwt = new JwtAuth();
+                $response = response()->json($jwt->signup($params_array['email'], $params_array['password']), 200);
+                if (!empty($params_array['getToken'])) {
+                    $response = response()->json($jwt->signup($params_array['email'], $params_array['password'], true), 200);
+                }
+            }
+        } else {
+            $response = [
+                'status' => 'fails',
+                'code' => 400,
+                'message' => "error",
+            ];
+            $response = response()->json($response, $response['code']);
+        }
 
-
-        return response()->json($jwt->signup($email, $password, true), 200);
+        return $response;
     }
 
     /**
@@ -99,9 +125,59 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //$flight = User::update('update users set votes = 100 where name = ?', ['John']);
+        //comprobar si el usuario esta identificado
+        $token = $request->header('Authorization');
+        $jwtAuth = new JwtAuth();
+        $checkToken = $jwtAuth->checkToken($token);
+        if ($checkToken) {
+            //actulisar el usuario
+        } else {
+            echo "error";
+        }
+        die();
+
+
+        /*   //recojer datos
+        $json = $request->input('json', null);
+        $params_array = json_decode($json, true);
+        if (!empty($params_array)) {
+            ///validar datos
+            $validate = \Validator::make($params_array, [
+                'name' => 'required|alpha',
+                'email' => 'required|email|unique:users',
+                'birthday' => 'required',
+                'phone' => 'required',
+                'sex' => 'required|alpha',
+                'profile' => 'required|alpha',
+                'password' => 'required',
+            ]);
+            if ($validate->fails()) {
+                $response = [
+                    'status' => 'fails',
+                    'code' => 400,
+                    'message' => "Usurio no creado",
+                    'errors' => $validate->errors()
+                ];
+                return response()->json($response, $response['code']);
+            } else {
+
+                $params_array['password'] = bcrypt($params_array['password']);
+                //crear usuario
+
+               // return  User::u($params_array);
+                user::update('update users set votes = 100 where name = ?', ['John']);
+
+            }
+        } else {
+            $response = [
+                'status' => 'fails',
+                'code' => 400,
+                'message' => "Usurio no creado",
+            ];
+            return response()->json($response, $response['code']);
+        }*/
     }
 
     /**

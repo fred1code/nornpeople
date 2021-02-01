@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\User;
+use Namshi\JOSE\Signer\OpenSSL\HS256;
+use PhpParser\Node\Stmt\TryCatch;
 
 class JwtAuth
 {
@@ -24,7 +26,7 @@ class JwtAuth
         $user = User::where([
             'email' => $email
         ])->first();
-   
+
         if (Hash::check($password,  $user->password)) {
 
             $singup = false;
@@ -60,5 +62,31 @@ class JwtAuth
             ];
         }
         return $data;
+    }
+
+    public function checkToken($jwt, $getIdentity = false)
+    {
+        $auth = false;
+        try {
+            $jwt= str_replace('"','',$jwt);
+            $decoded = JWT::decode($jwt, $this->key, ['HS256']);
+        } catch (\UnexpectedValueException $e) {
+            $auth = false;
+        } catch (\DomainException $e) {
+            $auth = false;
+        }
+
+        if (!empty($decoded) && is_object($decoded) && isset($decoded->sub)) {
+            $auth = true;
+        } else {
+            $auth = false;
+        }
+
+        if ($getIdentity) {
+            return $decoded;
+        }
+
+
+        return $auth;
     }
 }
