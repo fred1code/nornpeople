@@ -32,3 +32,5 @@ Route::delete('/api/user/destroy', 'UserController@destroy');
 
 ///ADDRESS
 Route::post('/api/address/store', 'AddressController@store');
+Route::put('/api/address/update', 'AddressController@update');
+Route::delete('/api/address/destroy', 'AddressController@destroy');

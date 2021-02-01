@@ -48,14 +48,17 @@ class UserController extends Controller
                     'message' => "Usurio no creado",
                     'errors' => $validate->errors()
                 ];
-                return response()->json($response, $response['code']);
             } else {
 
                 $params_array['password'] = bcrypt($params_array['password']);
                 //crear usuario
                 $params_array = array_merge(['enable' => 1], $params_array);
-
-                return  User::create($params_array);
+                $resp = User::create($params_array);
+                $response = [
+                    'status' => 'create',
+                    'code' => 201,
+                    'message' => $resp,
+                ];
             }
         } else {
             $response = [
@@ -63,8 +66,8 @@ class UserController extends Controller
                 'code' => 400,
                 'message' => "Usurio no creado",
             ];
-            return response()->json($response, $response['code']);
         }
+        return response()->json($response, $response['code']);
     }
     /**
      * Store a newly created resource in storage.
@@ -208,15 +211,14 @@ class UserController extends Controller
 
         if ($checkToken) {
             $user = $jwtAuth->checkToken($token, true);
-                $update_user = User::where('id', $user->sub)->update(['enable' => 0]);
+            $update_user = User::where('id', $user->sub)->update(['enable' => 0]);
 
-                //devolver el array
-                $data = [
-                    'status' => 'success',
-                    'code' => 200,
-                    'message' => $update_user,
-                ];
-           
+            //devolver el array
+            $data = [
+                'status' => 'success',
+                'code' => 200,
+                'message' => $update_user,
+            ];
         } else {
             $data = [
                 'status' => 'fail',
