@@ -25,7 +25,8 @@ Route::get('/test', 'PruebasController@index');
 //USERS
 Route::post('/api/user/store', 'UserController@store');
 Route::post('/api/user/login', 'UserController@login');
-Route::post('/api/user/update', 'UserController@update');
+Route::put('/api/user/update', 'UserController@update');
+Route::delete('/api/user/destroy', 'UserController@destroy');
 
 
 

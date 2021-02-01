@@ -33,7 +33,7 @@ class UserController extends Controller
         if (!empty($params_array)) {
             ///validar datos
             $validate = \Validator::make($params_array, [
-                'name' => 'required|alpha',
+                'name' => 'required|string',
                 'email' => 'required|email|unique:users',
                 'birthday' => 'required',
                 'phone' => 'required',
@@ -53,6 +53,7 @@ class UserController extends Controller
 
                 $params_array['password'] = bcrypt($params_array['password']);
                 //crear usuario
+                $params_array = array_merge(['enable' => 1], $params_array);
 
                 return  User::create($params_array);
             }
@@ -131,53 +132,65 @@ class UserController extends Controller
         $token = $request->header('Authorization');
         $jwtAuth = new JwtAuth();
         $checkToken = $jwtAuth->checkToken($token);
-        if ($checkToken) {
-            //actulisar el usuario
-        } else {
-            echo "error";
-        }
-        die();
-
-
-        /*   //recojer datos
+        //recojer los datos
         $json = $request->input('json', null);
         $params_array = json_decode($json, true);
-        if (!empty($params_array)) {
-            ///validar datos
-            $validate = \Validator::make($params_array, [
-                'name' => 'required|alpha',
-                'email' => 'required|email|unique:users',
-                'birthday' => 'required',
-                'phone' => 'required',
-                'sex' => 'required|alpha',
-                'profile' => 'required|alpha',
-                'password' => 'required',
-            ]);
-            if ($validate->fails()) {
-                $response = [
-                    'status' => 'fails',
-                    'code' => 400,
-                    'message' => "Usurio no creado",
-                    'errors' => $validate->errors()
-                ];
-                return response()->json($response, $response['code']);
+
+        if ($checkToken && !empty($params_array)) {
+            //usuario identificado
+            $user = $jwtAuth->checkToken($token, true);
+            // validar datos
+            if (!empty($params_array)) {
+                $validate = \Validator::make($params_array, [
+                    'name' => 'required|string',
+                    'email' => 'required|email|unique:users,email,' . $user->sub,
+                    'birthday' => 'required',
+                    'phone' => 'required',
+                    'sex' => 'required|alpha',
+                    'profile' => 'required|alpha',
+                ]);
+
+                if ($validate->fails()) {
+                    $data = [
+                        'status' => 'fail',
+                        'code' => 400,
+                        'message' => "Usurio no creado",
+                        'errors' => $validate->errors()
+                    ];
+                } else {
+                    // quitar los campos
+                    unset($params_array['id']);
+                    unset($params_array['profile']);
+                    unset($params_array['password']);
+                    unset($params_array['email']);
+                    unset($params_array['enable']);
+
+                    //actulisar
+
+                    $update_user = User::where('id', $user->sub)->update($params_array);
+
+                    //devolver el array
+                    $data = [
+                        'status' => 'success',
+                        'code' => 200,
+                        'message' => $update_user,
+                    ];
+                }
             } else {
-
-                $params_array['password'] = bcrypt($params_array['password']);
-                //crear usuario
-
-               // return  User::u($params_array);
-                user::update('update users set votes = 100 where name = ?', ['John']);
-
+                $data = [
+                    'status' => 'fail',
+                    'code' => 401,
+                    'message' => "Usuario no identificado",
+                ];
             }
         } else {
-            $response = [
-                'status' => 'fails',
-                'code' => 400,
-                'message' => "Usurio no creado",
+            $data = [
+                'status' => 'fail',
+                'code' => 401,
+                'message' => "Usuario no identificado",
             ];
-            return response()->json($response, $response['code']);
-        }*/
+        }
+        return response()->json($data, $data['code']);
     }
 
     /**
@@ -186,8 +199,31 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        //comprobar si el usuario esta identificado
+        $token = $request->header('Authorization');
+        $jwtAuth = new JwtAuth();
+        $checkToken = $jwtAuth->checkToken($token);
+
+        if ($checkToken) {
+            $user = $jwtAuth->checkToken($token, true);
+                $update_user = User::where('id', $user->sub)->update(['enable' => 0]);
+
+                //devolver el array
+                $data = [
+                    'status' => 'success',
+                    'code' => 200,
+                    'message' => $update_user,
+                ];
+           
+        } else {
+            $data = [
+                'status' => 'fail',
+                'code' => 401,
+                'message' => "Usuario no identificado",
+            ];
+        }
+        return response()->json($data, $data['code']);
     }
 }

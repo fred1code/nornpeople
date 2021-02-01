@@ -22,6 +22,7 @@ $factory->define(User::class, function (Faker $faker) {
     $profile = $faker->randomElement(['Admin', 'User']);
 
     return [
+        'enable' => true,
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
         'email_verified_at' => now(),
@@ -32,5 +33,4 @@ $factory->define(User::class, function (Faker $faker) {
         'password' => bcrypt('123456'),
         'remember_token' => Str::random(10),
     ];
-    
 });
