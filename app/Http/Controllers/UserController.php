@@ -27,7 +27,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //recojer datos
         $json = $request->input('json', null);
         $params_array = json_decode($json, true);
         if (!empty($params_array)) {
@@ -77,7 +76,6 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        //recibir datos 
         $json = $request->input('json', null);
         $params_array = json_decode($json, true);
         //validar datos
@@ -121,26 +119,12 @@ class UserController extends Controller
      */
     public function list(Request $request)
     {
-        $token = $request->header('Authorization');
-        $jwtAuth = new JwtAuth();
-        $checkToken = $jwtAuth->checkToken($token);
-        if ($checkToken) {
-
-            $all = User::all(['id', 'name', 'email', 'birthday', 'phone', 'sex', 'profile']);
-            $data = [
-                'status' => 'success',
-                'code' => 200,
-                'body' => $all,
-            ];
-        } else {
-            $data = [
-                'status' => 'fail',
-                'code' => 401,
-                'message' => "Permiso Denegado",
-            ];
-        }
-
-
+        $all = User::all(['id', 'name', 'email', 'birthday', 'phone', 'sex', 'profile']);
+        $data = [
+            'status' => 'success',
+            'code' => 200,
+            'body' => $all,
+        ];
         return response()->json($data, $data['code']);
     }
 
@@ -166,12 +150,13 @@ class UserController extends Controller
         //comprobar si el usuario esta identificado
         $token = $request->header('Authorization');
         $jwtAuth = new JwtAuth();
-        $checkToken = $jwtAuth->checkToken($token);
+     //   $checkToken = $jwtAuth->checkToken($token);
         //recojer los datos
         $json = $request->input('json', null);
         $params_array = json_decode($json, true);
 
-        if ($checkToken && !empty($params_array)) {
+      //  if ($checkToken && !empty($params_array)) {
+        if (!empty($params_array)) {
             //usuario identificado
             $user = $jwtAuth->checkToken($token, true);
             // validar datos

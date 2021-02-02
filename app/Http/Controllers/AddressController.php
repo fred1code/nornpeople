@@ -80,10 +80,7 @@ class AddressController extends Controller
      */
     public function list(Request $request)
     {
-        $token = $request->header('Authorization');
-        $jwtAuth = new JwtAuth();
-        $checkToken = $jwtAuth->checkToken($token);
-        if ($checkToken) {
+      
 
             $all = Address::all(['id', 'user_id', 'del', 'col', 'numIn', 'numEx', 'street']);
             $data = [
@@ -91,13 +88,7 @@ class AddressController extends Controller
                 'code' => 200,
                 'body' => $all,
             ];
-        } else {
-            $data = [
-                'status' => 'fail',
-                'code' => 401,
-                'message' => "Permiso Denegado",
-            ];
-        }
+ 
 
 
         return response()->json($data, $data['code']);
@@ -173,12 +164,14 @@ class AddressController extends Controller
 
                 unset($params_array['enable']);
 
-                $update_address = Address::where('id_user', $params_array['user_id'])->update($params_array);
+                $t =  Address::where('id', $params_array['id'])
+                    ->where('user_id', $params_array['user_id'])
+                    ->update($params_array);
 
                 $response = [
                     'status' => 'update',
                     'code' => 201,
-                    'message' => $update_address
+                    'message' => $t
                 ];
             }
         } else {
