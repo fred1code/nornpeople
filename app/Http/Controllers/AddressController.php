@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Address;
 use Illuminate\Http\Request;
 use App\Helpers\JwtAuth;
+use App\User;
 
 class AddressController extends Controller
 {
@@ -77,9 +78,64 @@ class AddressController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function list(Request $request)
     {
-        //
+        $token = $request->header('Authorization');
+        $jwtAuth = new JwtAuth();
+        $checkToken = $jwtAuth->checkToken($token);
+        if ($checkToken) {
+
+            $all = Address::all(['id', 'user_id', 'del', 'col', 'numIn', 'numEx', 'street']);
+            $data = [
+                'status' => 'success',
+                'code' => 200,
+                'body' => $all,
+            ];
+        } else {
+            $data = [
+                'status' => 'fail',
+                'code' => 401,
+                'message' => "Permiso Denegado",
+            ];
+        }
+
+
+        return response()->json($data, $data['code']);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function userAddress(Request $request)
+    {
+        $token = $request->header('Authorization');
+        $jwtAuth = new JwtAuth();
+        $checkToken = $jwtAuth->checkToken($token);
+        if ($checkToken) {
+            $checkToken = $jwtAuth->checkToken($token, true);
+            //  $update_address = Address::where('id_user', $checkToken->sub)->first();;
+            $t = address::with('user')
+                ->whereId($checkToken->sub)
+                ->first();
+
+            $data = [
+                'status' => 'success',
+                'code' => 200,
+                'body' => $t,
+            ];
+        } else {
+            $data = [
+                'status' => 'fail',
+                'code' => 401,
+                'message' => "Permiso Denegado",
+            ];
+        }
+
+
+        return response()->json($data, $data['code']);
     }
 
     /**
@@ -115,15 +171,10 @@ class AddressController extends Controller
                 ];
             } else {
 
-                // quitar los campos
                 unset($params_array['enable']);
 
-                //crear usuario
+                $update_address = Address::where('id_user', $params_array['user_id'])->update($params_array);
 
-
-               
-                    $update_address = Address::where('id_user', $params_array['user_id'])->update($params_array);
-               
                 $response = [
                     'status' => 'update',
                     'code' => 201,

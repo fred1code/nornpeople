@@ -104,12 +104,44 @@ class UserController extends Controller
             $response = [
                 'status' => 'fails',
                 'code' => 400,
-                'message' => "error",
+                'message' => "datos incorrectos",
+                'array' => $params_array
             ];
             $response = response()->json($response, $response['code']);
         }
 
         return $response;
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function list(Request $request)
+    {
+        $token = $request->header('Authorization');
+        $jwtAuth = new JwtAuth();
+        $checkToken = $jwtAuth->checkToken($token);
+        if ($checkToken) {
+
+            $all = User::all(['id', 'name', 'email', 'birthday', 'phone', 'sex', 'profile']);
+            $data = [
+                'status' => 'success',
+                'code' => 200,
+                'body' => $all,
+            ];
+        } else {
+            $data = [
+                'status' => 'fail',
+                'code' => 401,
+                'message' => "Permiso Denegado",
+            ];
+        }
+
+
+        return response()->json($data, $data['code']);
     }
 
     /**

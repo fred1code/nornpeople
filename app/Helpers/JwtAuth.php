@@ -39,7 +39,7 @@ class JwtAuth
                     'name' => $user->name,
                     'email' => $user->email,
                     'iat' => time(),
-                    'exp' => time() + (5 * 60)
+                    'exp' => time() + (10 * 60)
                 ];
 
                 $jwt = JWT::encode($token, $this->key, 'HS256');
@@ -68,7 +68,7 @@ class JwtAuth
     {
         $auth = false;
         try {
-            $jwt= str_replace('"','',$jwt);
+            $jwt = str_replace('"', '', $jwt);
             $decoded = JWT::decode($jwt, $this->key, ['HS256']);
         } catch (\UnexpectedValueException $e) {
             $auth = false;
